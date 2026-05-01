@@ -155,4 +155,4 @@ The combined dataset is split **80/10/10** (train / validation / test) with stra
 
 ---
 
-*Built for SMAI Assignment 3 — For educational purposes. Always verify diagnoses with an agricultural expert.*
+*Built for SMAI Assignment 3 - Made with ❤️ by Team Venus : Chinta Phani Rama Vaibhav, Sri Ram Parchuri, Naveen Mishra.*
