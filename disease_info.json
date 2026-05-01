@@ -1,0 +1,14 @@
+{
+  "Bacterial Leaf Blight": {
+    "description": "Bacterial Leaf Blight is caused by the bacterium Xanthomonas oryzae. It makes the leaf edges turn yellow-white and dry up, spreading inward — if untreated the whole leaf can wilt and the plant gives much less grain.",
+    "action": "Remove and destroy heavily infected leaves immediately. Apply copper-based bactericides (like copper oxychloride at 2.5 g/L) as a foliar spray. Ensure proper field drainage to reduce standing water. Avoid excess nitrogen fertiliser, as it worsens the disease. For next season, choose BLB-resistant rice varieties recommended by your local Krishi Vigyan Kendra (KVK)."
+  },
+  "Brown Spot": {
+    "description": "Brown Spot is a fungal disease caused by Bipolaris oryzae that appears as small oval brown spots with a grey centre on the leaves. It is most common when soil is poor in nutrients — especially potassium and zinc — and can reduce your grain yield by 10–30 % if left unchecked.",
+    "action": "Spray a fungicide such as Mancozeb (2.5 g/L) or Propiconazole (1 mL/L) at the first sign of spots, and repeat after 15 days if needed. Improve soil health by applying potash (MOP) and zinc sulphate as recommended by a soil-test report. Use certified, disease-free seed and treat seed with Carbendazim (2 g/kg seed) before sowing next season."
+  },
+  "Leaf smut": {
+    "description": "Leaf Smut is caused by the fungus Entyloma oryzae and shows up as small, angular black or dark-brown spots scattered across the leaf surface. It usually appears late in the season and, while it rarely kills the plant outright, heavy infection weakens the plant and lowers grain quality.",
+    "action": "Spray the crop with Mancozeb (2.5 g/L) or Carbendazim (1 g/L) when you first notice the dark spots. Remove crop residues and stubble after harvest to eliminate fungal spores surviving in the field. Maintain balanced fertilisation — avoid excess nitrogen — and ensure proper spacing between plants for good air circulation."
+  }
+}
