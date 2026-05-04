@@ -210,64 +210,11 @@ st.markdown(f"""
     position: relative !important;
     min-height: 180px !important;
     overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
 }}
 [data-testid="stFileUploader"] section:hover,
 [data-testid="stFileUploadDropzone"]:hover {{
     border-color: #2e7d32 !important;
     background-color: #e3f0de !important;
-}}
-
-/* Nuke ALL native dropzone children — JS overlay handles UX instead */
-[data-testid="stFileUploadDropzone"] > div,
-[data-testid="stFileUploadDropzone"] > div > * {{
-    display: none !important;
-}}
-
-/* Keep the invisible file input so clicking the zone opens the picker */
-[data-testid="stFileUploadDropzone"] input[type="file"] {{
-    display: block !important;
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    opacity: 0 !important;
-    cursor: pointer !important;
-    z-index: 10 !important;
-}}
-
-/* Custom instruction text */
-[data-testid="stFileUploader"] section::before,
-[data-testid="stFileUploadDropzone"]::before {{
-    content: "📸\\A Drag & drop or click here to browse files";
-    white-space: pre-wrap;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #2d3b2d;
-    display: block;
-    text-align: center;
-    width: 100%;
-    line-height: 1.8;
-    margin-bottom: 0.45rem;
-    pointer-events: none;
-    position: relative;
-    z-index: 1;
-}}
-[data-testid="stFileUploader"] section::after,
-[data-testid="stFileUploadDropzone"]::after {{
-    content: "Limit 200MB per file • JPG, JPEG, PNG, BMP";
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #7a937a;
-    display: block;
-    text-align: center;
-    width: 100%;
-    pointer-events: none;
-    position: relative;
-    z-index: 1;
 }}
 
 /* ── Result badge ── */
@@ -446,84 +393,158 @@ uploaded = st.file_uploader(
     label_visibility="collapsed",
 )
 
-# JS: show upload % in centre of dropzone, disappear when done
+# JS: hide ALL native uploader UI, show custom text + upload %
 components.html("""
 <script>
 (function () {
   var pdoc;
   try { pdoc = window.parent.document; } catch (e) { return; }
 
-  var overlayEl = null;
-  var pctEl     = null;
+  /* IDs for our injected elements */
+  var LABEL_ID   = '_cust_label';
+  var OVERLAY_ID = '_cust_overlay';
+  var pctEl      = null;
 
-  function getOrCreate(dropzone) {
-    if (overlayEl && dropzone.contains(overlayEl)) return;
-    var old = pdoc.getElementById('_up_ov');
-    if (old) old.remove();
+  /* ── Create the static "Drag & drop" label ── */
+  function ensureLabel(section) {
+    if (pdoc.getElementById(LABEL_ID)) return;
+    var wrap = pdoc.createElement('div');
+    wrap.id = LABEL_ID;
+    wrap.style.cssText = [
+      'position:absolute','inset:0',
+      'display:flex','flex-direction:column',
+      'align-items:center','justify-content:center',
+      'z-index:5','pointer-events:none',
+      'font-family:Inter,sans-serif'
+    ].join(';');
+    wrap.innerHTML =
+      '<div style="font-size:2.2rem;margin-bottom:0.3rem;">📸</div>'
+    + '<div style="font-size:1.15rem;font-weight:700;color:#2d3b2d;'
+    + 'text-align:center;line-height:1.6;">Drag & drop or click here to browse files</div>'
+    + '<div style="font-size:0.85rem;font-weight:500;color:#7a937a;'
+    + 'margin-top:0.4rem;">Limit 200MB per file · JPG, JPEG, PNG, BMP</div>';
+    section.appendChild(wrap);
+  }
 
-    overlayEl = pdoc.createElement('div');
-    overlayEl.id = '_up_ov';
-    overlayEl.style.cssText = [
+  /* ── Create the upload-% overlay (hidden by default) ── */
+  function ensureOverlay(section) {
+    if (pdoc.getElementById(OVERLAY_ID)) return;
+    var ov = pdoc.createElement('div');
+    ov.id = OVERLAY_ID;
+    ov.style.cssText = [
       'position:absolute','inset:0','display:none',
       'flex-direction:column','align-items:center','justify-content:center',
-      'z-index:50','border-radius:12px','gap:10px','pointer-events:none',
-      'background:rgba(247,250,244,0.96)'
+      'z-index:55','pointer-events:none','border-radius:12px',
+      'background:rgba(247,250,244,0.97)',
+      'font-family:Inter,sans-serif'
     ].join(';');
 
     pctEl = pdoc.createElement('div');
-    pctEl.style.cssText = 'font-size:3rem;font-weight:800;color:#1b5e20;'
-                        + 'line-height:1;font-family:Inter,sans-serif;';
+    pctEl.style.cssText = 'font-size:3rem;font-weight:800;color:#1b5e20;line-height:1;';
     pctEl.textContent = '0%';
 
     var lbl = pdoc.createElement('div');
     lbl.style.cssText = 'font-size:0.88rem;color:#7a937a;font-weight:500;'
-                      + 'letter-spacing:0.5px;font-family:Inter,sans-serif;';
+                      + 'letter-spacing:0.5px;margin-top:10px;';
     lbl.textContent = 'Uploading\u2026';
 
-    overlayEl.appendChild(pctEl);
-    overlayEl.appendChild(lbl);
-    dropzone.appendChild(overlayEl);
+    ov.appendChild(pctEl);
+    ov.appendChild(lbl);
+    section.appendChild(ov);
   }
 
-  function readPct(pill) {
-    var bar = pill.querySelector('[role="progressbar"]');
+  /* ── Hide every native child except <input type="file"> and our elements ── */
+  function nukeNative(section) {
+    var children = section.querySelectorAll('*');
+    for (var i = 0; i < children.length; i++) {
+      var el = children[i];
+      /* Skip our own injected elements */
+      if (el.id === LABEL_ID || el.id === OVERLAY_ID) continue;
+      if (el.closest('#' + LABEL_ID) || el.closest('#' + OVERLAY_ID)) continue;
+      /* Keep the file input (but make it invisible & fill the zone) */
+      if (el.tagName === 'INPUT' && el.type === 'file') {
+        el.style.cssText = 'position:absolute!important;inset:0!important;'
+          + 'width:100%!important;height:100%!important;opacity:0!important;'
+          + 'cursor:pointer!important;z-index:10!important;display:block!important;';
+        continue;
+      }
+      /* Nuke everything else */
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('visibility', 'hidden', 'important');
+      el.style.setProperty('height', '0', 'important');
+      el.style.setProperty('overflow', 'hidden', 'important');
+      el.style.setProperty('position', 'absolute', 'important');
+    }
+  }
+
+  /* ── Read upload progress from the hidden Streamlit pill ── */
+  function readPct(section) {
+    var bar = section.querySelector('[role="progressbar"]');
     if (bar) {
       var v = bar.getAttribute('aria-valuenow');
       if (v !== null) return parseFloat(v);
     }
-    var fill = pill.querySelector('[data-testid="stProgressBar"] > div > div') ||
-               pill.querySelector('.stProgress > div > div > div');
-    if (fill && fill.style.width) return parseFloat(fill.style.width);
-    return 100;
+    /* fallback: look at width of progress fill */
+    var fills = section.querySelectorAll('[data-testid="stProgressBar"] div div');
+    for (var i = 0; i < fills.length; i++) {
+      if (fills[i].style.width) return parseFloat(fills[i].style.width);
+    }
+    return -1;  /* no progress element found at all */
   }
 
+  /* ── Main tick ── */
   function tick() {
-    var dropzone = pdoc.querySelector('[data-testid="stFileUploadDropzone"]');
-    if (!dropzone) return;
-    getOrCreate(dropzone);
-    var pill = dropzone.querySelector('[data-testid="stFileUploaderFile"]');
-    if (!pill) { overlayEl.style.display = 'none'; return; }
-    pill.style.cssText = 'display:none!important;visibility:hidden!important;position:absolute!important;';
-    var progress = readPct(pill);
-    if (progress < 100) {
-      overlayEl.style.display = 'flex';
-      pctEl.textContent = Math.round(progress) + '%';
+    /* Find the section (the actual dropzone container) */
+    var section = pdoc.querySelector('[data-testid="stFileUploadDropzone"]')
+               || pdoc.querySelector('[data-testid="stFileUploader"] section');
+    if (!section) return;
+
+    /* Ensure our custom elements exist */
+    ensureLabel(section);
+    ensureOverlay(section);
+
+    /* Force hide all native Streamlit elements every tick */
+    nukeNative(section);
+
+    /* Check if a file is being uploaded */
+    var pill = section.querySelector('[data-testid="stFileUploaderFile"]');
+    var labelEl   = pdoc.getElementById(LABEL_ID);
+    var overlayEl = pdoc.getElementById(OVERLAY_ID);
+    if (!labelEl || !overlayEl) return;
+
+    if (pill) {
+      var progress = readPct(section);
+      if (progress >= 0 && progress < 100) {
+        /* Uploading — show percentage, hide label */
+        labelEl.style.display   = 'none';
+        overlayEl.style.display = 'flex';
+        if (pctEl) pctEl.textContent = Math.round(progress) + '%';
+      } else {
+        /* Upload complete (100%) or no progress bar — hide overlay, show label */
+        labelEl.style.display   = 'flex';
+        overlayEl.style.display = 'none';
+      }
     } else {
+      /* No file — clean state */
+      labelEl.style.display   = 'flex';
       overlayEl.style.display = 'none';
     }
   }
 
+  /* ── Wire up ── */
   function setup() {
     var body = pdoc.body;
     if (!body) { setTimeout(setup, 300); return; }
-    setInterval(tick, 80);
+    /* Run immediately then on interval + mutation */
+    tick();
+    setInterval(tick, 120);
     new MutationObserver(tick).observe(body, {
       childList: true, subtree: true,
       attributes: true,
-      attributeFilter: ['style', 'aria-valuenow', 'aria-valuemax']
+      attributeFilter: ['style', 'aria-valuenow', 'class']
     });
   }
-  setTimeout(setup, 300);
+  setTimeout(setup, 500);
 })();
 </script>
 """, height=0)
