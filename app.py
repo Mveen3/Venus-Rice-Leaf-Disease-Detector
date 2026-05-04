@@ -212,12 +212,16 @@ st.markdown(f"""
     background-color: #e3f0de !important;
 }}
 
-/* Fix text colors */
-[data-testid="stFileUploader"] section *,
+/* Hide default text and browse button inside dropzone */
 [data-testid="stFileUploadDropzone"] span, 
 [data-testid="stFileUploadDropzone"] small,
-[data-testid="stFileUploadDropzone"] div {{
-    color: #374151 !important;
+[data-testid="stFileUploadDropzone"] div,
+[data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploader"] section span,
+[data-testid="stFileUploader"] section small,
+[data-testid="stFileUploader"] section div,
+[data-testid="stFileUploader"] section button {{
+    display: none !important;
 }}
 
 /* Hide default streamlit cloud icon */
@@ -226,35 +230,32 @@ st.markdown(f"""
     display: none !important;
 }}
 
-/* Add custom camera emoji */
+/* Add primary instruction (Drag & Drop) */
 [data-testid="stFileUploader"] section::before,
 [data-testid="stFileUploadDropzone"]::before {{
-    content: "📸\\A Drop a rice leaf photo above";
+    content: "📸\\A Drag & drop or click here to browse files";
     white-space: pre-wrap;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #374151;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2d3b2d;
     display: block;
     text-align: center;
-    margin-bottom: 10px;
     width: 100%;
-    line-height: 1.4;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
 }}
 
-/* Style the browse button */
-[data-testid="stFileUploader"] section button,
-[data-testid="stFileUploadDropzone"] button {{
-    background-color: #2e7d32 !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    margin-top: 10px !important;
-}}
-[data-testid="stFileUploader"] section button:hover,
-[data-testid="stFileUploadDropzone"] button:hover {{
-    background-color: #43a047 !important;
-    color: #ffffff !important;
+/* Add secondary instruction (File Limits) */
+[data-testid="stFileUploader"] section::after,
+[data-testid="stFileUploadDropzone"]::after {{
+    content: "Limit 200MB per file • JPG, JPEG, PNG, BMP";
+    white-space: pre-wrap;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #7a937a;
+    display: block;
+    text-align: center;
+    width: 100%;
 }}
 
 /* ── Result badge ── */
