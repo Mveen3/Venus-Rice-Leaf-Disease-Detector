@@ -197,7 +197,7 @@ st.markdown(f"""
 
 /* ── Streamlit file uploader ── */
 [data-testid="stFileUploader"] {{
-    margin-top: -16px;
+    margin-top: 0px;
 }}
 [data-testid="stFileUploader"] section,
 [data-testid="stFileUploadDropzone"] {{
