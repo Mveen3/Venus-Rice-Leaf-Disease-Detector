@@ -196,29 +196,56 @@ st.markdown(f"""
 }}
 
 /* ── Streamlit file uploader ── */
+[data-testid="stFileUploader"] {{
+    width: 100%;
+}}
 [data-testid="stFileUploadDropzone"] {{
-    background-color: #222b36 !important;
-    border: 2px dashed #43a047 !important;
+    border: 2px dashed #b5ccae !important;
     border-radius: 14px !important;
+    padding: 2.5rem 1rem !important;
+    background-color: #f7faf4 !important;
+    transition: all 0.25s ease;
+    align-items: center !important;
+    justify-content: center !important;
+}}
+[data-testid="stFileUploadDropzone"]:hover {{
+    border-color: #2e7d32 !important;
+    background-color: #e3f0de !important;
 }}
 
-[data-testid="stFileUploadDropzone"] div, 
+/* Fix text colors */
 [data-testid="stFileUploadDropzone"] span, 
-[data-testid="stFileUploadDropzone"] small {{
-    color: #ffffff !important;
+[data-testid="stFileUploadDropzone"] small,
+[data-testid="stFileUploadDropzone"] div {{
+    color: #374151 !important;
 }}
 
+/* Hide default streamlit cloud icon */
+[data-testid="stFileUploadDropzone"] svg {{
+    display: none;
+}}
+
+/* Add custom camera emoji */
+[data-testid="stFileUploadDropzone"]::before {{
+    content: "📸";
+    font-size: 3rem;
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+    width: 100%;
+}}
+
+/* Style the browse button */
 [data-testid="stFileUploadDropzone"] button {{
     background-color: #2e7d32 !important;
     color: #ffffff !important;
-    border: 1px solid #43a047 !important;
+    border: none !important;
     border-radius: 8px !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
+    margin-top: 10px !important;
 }}
-
 [data-testid="stFileUploadDropzone"] button:hover {{
     background-color: #43a047 !important;
-    color: #ffffff !important;
 }}
 
 /* ── Result badge ── */
@@ -460,16 +487,6 @@ if uploaded is not None:
 
 else:
     # ── Empty state — show disease reference ──
-    st.markdown("""
-    <div class="upload-placeholder">
-        <div style="font-size:2.5rem; margin-bottom:0.5rem;">📸</div>
-        <div style="font-weight:600; color:#374151; font-size:1rem;">Drop a rice leaf photo above</div>
-        <div style="color:#9ca3af; font-size:0.82rem; margin-top:0.3rem;">
-            Take a clear picture of the affected leaf · JPG, PNG, BMP supported
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
     st.markdown("---")
     st.markdown('<div class="sec-label">Diseases We Detect</div>', unsafe_allow_html=True)
 
