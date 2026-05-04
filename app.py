@@ -217,33 +217,35 @@ st.markdown(f"""
     background-color: #e3f0de !important;
 }}
 
-/* Protect the file info and progress blocks from getting hidden */
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] blockquote,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] div,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] div,
-[data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploaderFile"] div {{
-    display: flex !important;
+/* Hide ONLY the default text container and browse button inside dropzone */
+[data-testid="stFileUploadDropzone"] > div:first-of-type,
+[data-testid="stFileUploadDropzone"] > button,
+[data-testid="stFileUploader"] > section > div:first-of-type:not([data-testid="stFileUploaderFile"]),
+[data-testid="stFileUploader"] > section > button {{
+    display: none !important;
 }}
 
-[data-testid="stFileUploaderFile"] .stProgress > div,
-[data-testid="stFileUploaderFile"] .stProgress > div > div {{
-    display: block !important;
+/* Ensure the file info and progress bar are perfectly visible */
+[data-testid="stFileUploaderFile"] {{
+    display: flex !important;
+    background: #ffffff !important;
+    border: 1px solid #c8dcc0 !important;
+    border-radius: 12px !important;
+    padding: 10px !important;
+    margin-top: 10px !important;
 }}
-[data-testid="stFileUploadDropzone"] span, 
-[data-testid="stFileUploadDropzone"] small,
-[data-testid="stFileUploadDropzone"] div,
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploader"] section span,
-[data-testid="stFileUploader"] section small,
-[data-testid="stFileUploader"] section div,
-[data-testid="stFileUploader"] section button {{
-    display: none !important;
+
+/* Un-hide the uploaded file components without breaking internal flex layouts */
+[data-testid="stFileUploaderFile"] span,
+[data-testid="stFileUploaderFile"] small,
+[data-testid="stFileUploaderFile"] div,
+[data-testid="stFileUploaderFile"] button,
+[data-testid="stFileUploaderFile"] svg {{
+    display: initial !important;
+}}
+
+.stProgress > div, .stProgress > div > div {{
+    display: block !important;
 }}
 
 /* Hide default streamlit cloud icon */
