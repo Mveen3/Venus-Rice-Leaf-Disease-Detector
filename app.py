@@ -196,24 +196,28 @@ st.markdown(f"""
 }}
 
 /* ── Streamlit file uploader ── */
-/* Minimal styling to preserve drag-and-drop functionality */
-[data-testid="stFileUploader"] label {{
-    font-weight: 600 !important;
-    color: #2d3b2d !important;
+[data-testid="stFileUploadDropzone"] {{
+    background-color: #222b36 !important;
+    border: 2px dashed #43a047 !important;
+    border-radius: 14px !important;
 }}
 
-/* Browse files button - style only the button, not the whole uploader */
-[data-testid="stFileUploader"] button {{
-    background: #2e7d32 !important;
+[data-testid="stFileUploadDropzone"] div, 
+[data-testid="stFileUploadDropzone"] span, 
+[data-testid="stFileUploadDropzone"] small {{
+    color: #ffffff !important;
+}}
+
+[data-testid="stFileUploadDropzone"] button {{
+    background-color: #2e7d32 !important;
     color: #ffffff !important;
     border: 1px solid #43a047 !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     font-weight: 700 !important;
 }}
 
-/* Button hover */
-[data-testid="stFileUploader"] button:hover {{
-    background: #43a047 !important;
+[data-testid="stFileUploadDropzone"] button:hover {{
+    background-color: #43a047 !important;
     color: #ffffff !important;
 }}
 
