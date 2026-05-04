@@ -199,17 +199,21 @@ st.markdown(f"""
 [data-testid="stFileUploader"] {{
     margin-top: 0px;
 }}
+
+/* Dropzone wrapper — position relative so we can overlay the file input */
 [data-testid="stFileUploader"] section,
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #b5ccae !important;
     border-radius: 14px !important;
-    padding: 2.5rem 1rem !important;
+    padding: 2.5rem 1rem 2rem !important;
     background-color: #f7faf4 !important;
     transition: all 0.25s ease !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
+    position: relative !important;
+    min-height: 160px !important;
 }}
 [data-testid="stFileUploader"] section:hover,
 [data-testid="stFileUploadDropzone"]:hover {{
@@ -217,41 +221,44 @@ st.markdown(f"""
     background-color: #e3f0de !important;
 }}
 
-/* ── File uploader: hide only the default label/icon, keep progress bar ── */
-
-/* Hide the default cloud SVG icon */
-[data-testid="stFileUploader"] section svg,
-[data-testid="stFileUploadDropzone"] svg {{
+/* ── Hide every native child of the inner dropzone div EXCEPT the file pill ── */
+[data-testid="stFileUploadDropzone"] > div > *:not([data-testid="stFileUploaderFile"]) {{
     display: none !important;
 }}
 
-/* Hide ONLY the default descriptive label paragraph ("Drag and drop…" / "Limit…") */
-[data-testid="stFileUploadDropzone"] > div > div > p,
-[data-testid="stFileUploader"] section > div > div > p {{
-    display: none !important;
+/* Stretch the hidden <input type="file"> over the whole dropzone so any click opens the picker */
+[data-testid="stFileUploadDropzone"] input[type="file"],
+[data-testid="stFileUploader"] section input[type="file"] {{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
 }}
 
-/* Hide the "Browse files" button ONLY in the empty dropzone (not in the file row) */
-[data-testid="stFileUploadDropzone"] > div > div > button,
-[data-testid="stFileUploader"] section > div > div > button {{
-    display: none !important;
-}}
-
-/* Make sure the uploaded file info row and its contents are always visible */
-[data-testid="stFileUploaderFile"],
-[data-testid="stFileUploaderFile"] * {{
-    display: revert !important;
-}}
-
-/* Restore flex on the file info row itself */
+/* ── Uploaded file pill ── */
 [data-testid="stFileUploaderFile"] {{
     display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    margin-top: 0.75rem;
+    align-items: center !important;
+    gap: 0.6rem !important;
+    background: #e3f0de !important;
+    border: 1px solid #b5ccae !important;
+    border-radius: 10px !important;
+    padding: 0.55rem 1rem !important;
+    width: 85% !important;
+    margin-top: 0.5rem !important;
+    position: relative !important;
+    z-index: 20 !important;
+    pointer-events: auto !important;
+}}
+[data-testid="stFileUploaderFile"] * {{
+    display: revert !important;
+    color: #2d3b2d !important;
 }}
 
-/* Ensure progress bar container is block-level */
+/* Progress bar inside the pill */
 [data-testid="stFileUploaderFile"] [data-testid="stProgressBar"],
 [data-testid="stFileUploaderFile"] .stProgress,
 [data-testid="stFileUploaderFile"] .stProgress > div,
@@ -259,13 +266,11 @@ st.markdown(f"""
     display: block !important;
     width: 100% !important;
 }}
-
-/* Style the progress bar fill */
 [data-testid="stFileUploaderFile"] .stProgress > div > div > div {{
     background: linear-gradient(90deg, #2e7d32, #43a047) !important;
 }}
 
-/* Add primary instruction (Drag & Drop) */
+/* ── Custom instruction text via pseudo-elements ── */
 [data-testid="stFileUploader"] section::before,
 [data-testid="stFileUploadDropzone"]::before {{
     content: "📸\\A Drag & drop or click here to browse files";
@@ -277,20 +282,23 @@ st.markdown(f"""
     text-align: center;
     width: 100%;
     line-height: 1.7;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    pointer-events: none;
+    z-index: 1;
+    position: relative;
 }}
-
-/* Add secondary instruction (File Limits) */
 [data-testid="stFileUploader"] section::after,
 [data-testid="stFileUploadDropzone"]::after {{
     content: "Limit 200MB per file • JPG, JPEG, PNG, BMP";
-    white-space: pre-wrap;
     font-size: 0.85rem;
     font-weight: 500;
     color: #7a937a;
     display: block;
     text-align: center;
     width: 100%;
+    pointer-events: none;
+    z-index: 1;
+    position: relative;
 }}
 
 /* ── Result badge ── */
