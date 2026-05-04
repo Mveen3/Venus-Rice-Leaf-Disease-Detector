@@ -217,39 +217,52 @@ st.markdown(f"""
     background-color: #e3f0de !important;
 }}
 
-/* Protect the file info and progress blocks from getting hidden */
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] blockquote,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] div,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] div,
-[data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploaderFile"] div {{
-    display: flex !important;
-}}
+/* ── File uploader: hide only the default label/icon, keep progress bar ── */
 
-[data-testid="stFileUploaderFile"] .stProgress > div,
-[data-testid="stFileUploaderFile"] .stProgress > div > div {{
-    display: block !important;
-}}
-[data-testid="stFileUploadDropzone"] span, 
-[data-testid="stFileUploadDropzone"] small,
-[data-testid="stFileUploadDropzone"] div,
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploader"] section span,
-[data-testid="stFileUploader"] section small,
-[data-testid="stFileUploader"] section div,
-[data-testid="stFileUploader"] section button {{
-    display: none !important;
-}}
-
-/* Hide default streamlit cloud icon */
+/* Hide the default cloud SVG icon */
 [data-testid="stFileUploader"] section svg,
 [data-testid="stFileUploadDropzone"] svg {{
     display: none !important;
+}}
+
+/* Hide ONLY the default descriptive label paragraph ("Drag and drop…" / "Limit…") */
+[data-testid="stFileUploadDropzone"] > div > div > p,
+[data-testid="stFileUploader"] section > div > div > p {{
+    display: none !important;
+}}
+
+/* Hide the "Browse files" button ONLY in the empty dropzone (not in the file row) */
+[data-testid="stFileUploadDropzone"] > div > div > button,
+[data-testid="stFileUploader"] section > div > div > button {{
+    display: none !important;
+}}
+
+/* Make sure the uploaded file info row and its contents are always visible */
+[data-testid="stFileUploaderFile"],
+[data-testid="stFileUploaderFile"] * {{
+    display: revert !important;
+}}
+
+/* Restore flex on the file info row itself */
+[data-testid="stFileUploaderFile"] {{
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    margin-top: 0.75rem;
+}}
+
+/* Ensure progress bar container is block-level */
+[data-testid="stFileUploaderFile"] [data-testid="stProgressBar"],
+[data-testid="stFileUploaderFile"] .stProgress,
+[data-testid="stFileUploaderFile"] .stProgress > div,
+[data-testid="stFileUploaderFile"] .stProgress > div > div {{
+    display: block !important;
+    width: 100% !important;
+}}
+
+/* Style the progress bar fill */
+[data-testid="stFileUploaderFile"] .stProgress > div > div > div {{
+    background: linear-gradient(90deg, #2e7d32, #43a047) !important;
 }}
 
 /* Add primary instruction (Drag & Drop) */
