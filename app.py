@@ -196,43 +196,13 @@ st.markdown(f"""
 }}
 
 /* ── Streamlit file uploader ── */
-/* ── Streamlit file uploader ── */
-[data-testid="stFileUploader"] > div:first-child {{
-    background: #1f2937 !important;
-    border: 2px dashed #43a047 !important;
-    border-radius: 14px !important;
-    color: #ffffff !important;
-    padding: 1rem !important;
-}}
-
-/* Drag and drop text */
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span,
-[data-testid="stFileUploader"] p {{
-    color: #ffffff !important;
+/* Minimal styling to preserve drag-and-drop functionality */
+[data-testid="stFileUploader"] label {{
     font-weight: 600 !important;
+    color: #2d3b2d !important;
 }}
 
-/* Uploaded file row */
-[data-testid="stFileUploaderFile"] {{
-    background: #111827 !important;
-    border-radius: 10px !important;
-    padding: 0.5rem !important;
-}}
-
-/* Uploaded filename */
-[data-testid="stFileUploaderFileName"] {{
-    color: #ffffff !important;
-    font-weight: 700 !important;
-}}
-
-/* File size text */
-[data-testid="stFileUploader"] div {{
-    color: #d1fae5 !important;
-}}
-
-/* Browse files button */
+/* Browse files button - style only the button, not the whole uploader */
 [data-testid="stFileUploader"] button {{
     background: #2e7d32 !important;
     color: #ffffff !important;
@@ -241,7 +211,7 @@ st.markdown(f"""
     font-weight: 700 !important;
 }}
 
-/* Hover */
+/* Button hover */
 [data-testid="stFileUploader"] button:hover {{
     background: #43a047 !important;
     color: #ffffff !important;
@@ -521,7 +491,7 @@ st.markdown(
     "<div style='text-align:center; color:#7a937a; font-size:0.8rem; padding:0.5rem 0; line-height:1.8;'>"
     "Rice Leaf Disease Detector · EfficientNet-B0 · Trained on 4,804 images<br>"
     "Made with ❤️ by <strong style='color:#4a5e4a;'>Team Venus</strong> : "
-    "Chinta Phani Rama Vaibhav, Sri Ram Parchuri, Naveen Mishra"
+    "Vaibhav, Sri Ram, Naveen"
     "</div>",
     unsafe_allow_html=True,
 )
