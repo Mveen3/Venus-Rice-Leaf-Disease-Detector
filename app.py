@@ -217,7 +217,24 @@ st.markdown(f"""
     background-color: #e3f0de !important;
 }}
 
-/* Hide default text and browse button inside dropzone */
+/* Protect the file info and progress blocks from getting hidden */
+[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] blockquote,
+[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] span,
+[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] small,
+[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] div,
+[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] span,
+[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] small,
+[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] div,
+[data-testid="stFileUploaderFile"] span,
+[data-testid="stFileUploaderFile"] small,
+[data-testid="stFileUploaderFile"] div {
+    display: flex !important;
+}
+
+[data-testid="stFileUploaderFile"] .stProgress > div,
+[data-testid="stFileUploaderFile"] .stProgress > div > div {
+    display: block !important;
+}
 [data-testid="stFileUploadDropzone"] span, 
 [data-testid="stFileUploadDropzone"] small,
 [data-testid="stFileUploadDropzone"] div,
@@ -527,7 +544,9 @@ st.markdown(
     "<div style='text-align:center; color:#7a937a; font-size:0.8rem; padding:0.5rem 0; line-height:1.8;'>"
     "Rice Leaf Disease Detector · EfficientNet-B0 · Trained on 4,804 images<br>"
     "Made with ❤️ by <strong style='color:#4a5e4a;'>Team Venus</strong> : "
-    "Vaibhav, Naveen, Sri Ram"
+    "<a href='https://www.linkedin.com/in/chprvaibhav/' target='_blank' style='color:#2e7d32; text-decoration:none; font-weight:600;'>Vaibhav</a>, "
+    "<a href='https://www.linkedin.com/in/mveen3' target='_blank' style='color:#2e7d32; text-decoration:none; font-weight:600;'>Naveen</a>, "
+    "<a href='https://www.linkedin.com/in/sriram-paruchuri-8b3160250/' target='_blank' style='color:#2e7d32; text-decoration:none; font-weight:600;'>Sri Ram</a>"
     "</div>",
     unsafe_allow_html=True,
 )
