@@ -196,6 +196,9 @@ st.markdown(f"""
 }}
 
 /* ── Streamlit file uploader ── */
+[data-testid="stFileUploader"] {{
+    margin-top: -16px;
+}}
 [data-testid="stFileUploader"] section,
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #b5ccae !important;
@@ -203,6 +206,8 @@ st.markdown(f"""
     padding: 2.5rem 1rem !important;
     background-color: #f7faf4 !important;
     transition: all 0.25s ease !important;
+    display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
 }}
@@ -431,7 +436,7 @@ st.markdown('<div class="sec-label">Upload Leaf Image</div>', unsafe_allow_html=
 uploaded = st.file_uploader(
     "Take a clear picture of the affected leaf",
     type=["jpg", "jpeg", "png", "bmp"],
-    label_visibility="hidden",
+    label_visibility="collapsed",
 )
 
 # ══════════════════════════════════════════════
