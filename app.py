@@ -5,6 +5,7 @@ Upload a rice leaf photo → disease prediction → confidence bar → farmer-fr
 
 import os, json, base64
 import streamlit as st
+import streamlit.components.v1 as components
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
@@ -203,81 +204,17 @@ st.markdown(f"""
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #b5ccae !important;
     border-radius: 14px !important;
-    padding: 2.5rem 1rem !important;
+    padding: 3rem 1rem !important;
     background-color: #f7faf4 !important;
-    transition: all 0.25s ease !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
+    transition: border-color 0.25s ease, background-color 0.25s ease !important;
+    position: relative !important;
+    min-height: 180px !important;
+    overflow: hidden !important;
 }}
 [data-testid="stFileUploader"] section:hover,
 [data-testid="stFileUploadDropzone"]:hover {{
     border-color: #2e7d32 !important;
     background-color: #e3f0de !important;
-}}
-
-/* Protect the file info and progress blocks from getting hidden */
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] blockquote,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploadDropzone"] [data-testid="stFileUploaderFile"] div,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] div,
-[data-testid="stFileUploaderFile"] span,
-[data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploaderFile"] div {{
-    display: flex !important;
-}}
-
-[data-testid="stFileUploaderFile"] .stProgress > div,
-[data-testid="stFileUploaderFile"] .stProgress > div > div {{
-    display: block !important;
-}}
-[data-testid="stFileUploadDropzone"] span, 
-[data-testid="stFileUploadDropzone"] small,
-[data-testid="stFileUploadDropzone"] div,
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploader"] section span,
-[data-testid="stFileUploader"] section small,
-[data-testid="stFileUploader"] section div,
-[data-testid="stFileUploader"] section button {{
-    display: none !important;
-}}
-
-/* Hide default streamlit cloud icon */
-[data-testid="stFileUploader"] section svg,
-[data-testid="stFileUploadDropzone"] svg {{
-    display: none !important;
-}}
-
-/* Add primary instruction (Drag & Drop) */
-[data-testid="stFileUploader"] section::before,
-[data-testid="stFileUploadDropzone"]::before {{
-    content: "📸\\A Drag & drop or click here to browse files";
-    white-space: pre-wrap;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #2d3b2d;
-    display: block;
-    text-align: center;
-    width: 100%;
-    line-height: 1.7;
-    margin-bottom: 0.5rem;
-}}
-
-/* Add secondary instruction (File Limits) */
-[data-testid="stFileUploader"] section::after,
-[data-testid="stFileUploadDropzone"]::after {{
-    content: "Limit 200MB per file • JPG, JPEG, PNG, BMP";
-    white-space: pre-wrap;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #7a937a;
-    display: block;
-    text-align: center;
-    width: 100%;
 }}
 
 /* ── Result badge ── */
@@ -455,6 +392,162 @@ uploaded = st.file_uploader(
     type=["jpg", "jpeg", "png", "bmp"],
     label_visibility="collapsed",
 )
+
+# JS: hide ALL native uploader UI, show custom text + upload %
+components.html("""
+<script>
+(function () {
+  var pdoc;
+  try { pdoc = window.parent.document; } catch (e) { return; }
+
+  /* IDs for our injected elements */
+  var LABEL_ID   = '_cust_label';
+  var OVERLAY_ID = '_cust_overlay';
+  var pctEl      = null;
+
+  /* ── Create the static "Drag & drop" label ── */
+  function ensureLabel(section) {
+    if (pdoc.getElementById(LABEL_ID)) return;
+    var wrap = pdoc.createElement('div');
+    wrap.id = LABEL_ID;
+    wrap.style.cssText = [
+      'position:absolute','inset:0',
+      'display:flex','flex-direction:column',
+      'align-items:center','justify-content:center',
+      'z-index:5','pointer-events:none',
+      'font-family:Inter,sans-serif'
+    ].join(';');
+    wrap.innerHTML =
+      '<div style="font-size:2.2rem;margin-bottom:0.3rem;">📸</div>'
+    + '<div style="font-size:1.15rem;font-weight:700;color:#2d3b2d;'
+    + 'text-align:center;line-height:1.6;">Drag & drop or click here to browse files</div>'
+    + '<div style="font-size:0.85rem;font-weight:500;color:#7a937a;'
+    + 'margin-top:0.4rem;">Limit 200MB per file · JPG, JPEG, PNG, BMP</div>';
+    section.appendChild(wrap);
+  }
+
+  /* ── Create the upload-% overlay (hidden by default) ── */
+  function ensureOverlay(section) {
+    if (pdoc.getElementById(OVERLAY_ID)) return;
+    var ov = pdoc.createElement('div');
+    ov.id = OVERLAY_ID;
+    ov.style.cssText = [
+      'position:absolute','inset:0','display:none',
+      'flex-direction:column','align-items:center','justify-content:center',
+      'z-index:55','pointer-events:none','border-radius:12px',
+      'background:rgba(247,250,244,0.97)',
+      'font-family:Inter,sans-serif'
+    ].join(';');
+
+    pctEl = pdoc.createElement('div');
+    pctEl.style.cssText = 'font-size:3rem;font-weight:800;color:#1b5e20;line-height:1;';
+    pctEl.textContent = '0%';
+
+    var lbl = pdoc.createElement('div');
+    lbl.style.cssText = 'font-size:0.88rem;color:#7a937a;font-weight:500;'
+                      + 'letter-spacing:0.5px;margin-top:10px;';
+    lbl.textContent = 'Uploading\u2026';
+
+    ov.appendChild(pctEl);
+    ov.appendChild(lbl);
+    section.appendChild(ov);
+  }
+
+  /* ── Hide every native child except <input type="file"> and our elements ── */
+  function nukeNative(section) {
+    var children = section.querySelectorAll('*');
+    for (var i = 0; i < children.length; i++) {
+      var el = children[i];
+      /* Skip our own injected elements */
+      if (el.id === LABEL_ID || el.id === OVERLAY_ID) continue;
+      if (el.closest('#' + LABEL_ID) || el.closest('#' + OVERLAY_ID)) continue;
+      /* Keep the file input (but make it invisible & fill the zone) */
+      if (el.tagName === 'INPUT' && el.type === 'file') {
+        el.style.cssText = 'position:absolute!important;inset:0!important;'
+          + 'width:100%!important;height:100%!important;opacity:0!important;'
+          + 'cursor:pointer!important;z-index:10!important;display:block!important;';
+        continue;
+      }
+      /* Nuke everything else */
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('visibility', 'hidden', 'important');
+      el.style.setProperty('height', '0', 'important');
+      el.style.setProperty('overflow', 'hidden', 'important');
+      el.style.setProperty('position', 'absolute', 'important');
+    }
+  }
+
+  /* ── Read upload progress from the hidden Streamlit pill ── */
+  function readPct(section) {
+    var bar = section.querySelector('[role="progressbar"]');
+    if (bar) {
+      var v = bar.getAttribute('aria-valuenow');
+      if (v !== null) return parseFloat(v);
+    }
+    /* fallback: look at width of progress fill */
+    var fills = section.querySelectorAll('[data-testid="stProgressBar"] div div');
+    for (var i = 0; i < fills.length; i++) {
+      if (fills[i].style.width) return parseFloat(fills[i].style.width);
+    }
+    return -1;  /* no progress element found at all */
+  }
+
+  /* ── Main tick ── */
+  function tick() {
+    /* Find the section (the actual dropzone container) */
+    var section = pdoc.querySelector('[data-testid="stFileUploadDropzone"]')
+               || pdoc.querySelector('[data-testid="stFileUploader"] section');
+    if (!section) return;
+
+    /* Ensure our custom elements exist */
+    ensureLabel(section);
+    ensureOverlay(section);
+
+    /* Force hide all native Streamlit elements every tick */
+    nukeNative(section);
+
+    /* Check if a file is being uploaded */
+    var pill = section.querySelector('[data-testid="stFileUploaderFile"]');
+    var labelEl   = pdoc.getElementById(LABEL_ID);
+    var overlayEl = pdoc.getElementById(OVERLAY_ID);
+    if (!labelEl || !overlayEl) return;
+
+    if (pill) {
+      var progress = readPct(section);
+      if (progress >= 0 && progress < 100) {
+        /* Uploading — show percentage, hide label */
+        labelEl.style.display   = 'none';
+        overlayEl.style.display = 'flex';
+        if (pctEl) pctEl.textContent = Math.round(progress) + '%';
+      } else {
+        /* Upload complete (100%) or no progress bar — hide overlay, show label */
+        labelEl.style.display   = 'flex';
+        overlayEl.style.display = 'none';
+      }
+    } else {
+      /* No file — clean state */
+      labelEl.style.display   = 'flex';
+      overlayEl.style.display = 'none';
+    }
+  }
+
+  /* ── Wire up ── */
+  function setup() {
+    var body = pdoc.body;
+    if (!body) { setTimeout(setup, 300); return; }
+    /* Run immediately then on interval + mutation */
+    tick();
+    setInterval(tick, 120);
+    new MutationObserver(tick).observe(body, {
+      childList: true, subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'aria-valuenow', 'class']
+    });
+  }
+  setTimeout(setup, 500);
+})();
+</script>
+""", height=0)
 
 # ══════════════════════════════════════════════
 #  RESULTS  (if uploaded)
