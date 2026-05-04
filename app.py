@@ -196,24 +196,24 @@ st.markdown(f"""
 }}
 
 /* ── Streamlit file uploader ── */
-[data-testid="stFileUploader"] {{
-    width: 100%;
-}}
+[data-testid="stFileUploader"] section,
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #b5ccae !important;
     border-radius: 14px !important;
     padding: 2.5rem 1rem !important;
     background-color: #f7faf4 !important;
-    transition: all 0.25s ease;
+    transition: all 0.25s ease !important;
     align-items: center !important;
     justify-content: center !important;
 }}
+[data-testid="stFileUploader"] section:hover,
 [data-testid="stFileUploadDropzone"]:hover {{
     border-color: #2e7d32 !important;
     background-color: #e3f0de !important;
 }}
 
 /* Fix text colors */
+[data-testid="stFileUploader"] section *,
 [data-testid="stFileUploadDropzone"] span, 
 [data-testid="stFileUploadDropzone"] small,
 [data-testid="stFileUploadDropzone"] div {{
@@ -221,21 +221,28 @@ st.markdown(f"""
 }}
 
 /* Hide default streamlit cloud icon */
+[data-testid="stFileUploader"] section svg,
 [data-testid="stFileUploadDropzone"] svg {{
-    display: none;
+    display: none !important;
 }}
 
 /* Add custom camera emoji */
+[data-testid="stFileUploader"] section::before,
 [data-testid="stFileUploadDropzone"]::before {{
-    content: "📸";
-    font-size: 3rem;
+    content: "📸\\A Drop a rice leaf photo above";
+    white-space: pre-wrap;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #374151;
     display: block;
     text-align: center;
     margin-bottom: 10px;
     width: 100%;
+    line-height: 1.4;
 }}
 
 /* Style the browse button */
+[data-testid="stFileUploader"] section button,
 [data-testid="stFileUploadDropzone"] button {{
     background-color: #2e7d32 !important;
     color: #ffffff !important;
@@ -244,8 +251,10 @@ st.markdown(f"""
     font-weight: 600 !important;
     margin-top: 10px !important;
 }}
+[data-testid="stFileUploader"] section button:hover,
 [data-testid="stFileUploadDropzone"] button:hover {{
     background-color: #43a047 !important;
+    color: #ffffff !important;
 }}
 
 /* ── Result badge ── */
@@ -419,9 +428,9 @@ st.markdown("""
 st.markdown('<div class="sec-label">Upload Leaf Image</div>', unsafe_allow_html=True)
 
 uploaded = st.file_uploader(
-    "Upload a rice leaf image",
+    "Take a clear picture of the affected leaf",
     type=["jpg", "jpeg", "png", "bmp"],
-    label_visibility="collapsed",
+    label_visibility="hidden",
 )
 
 # ══════════════════════════════════════════════
@@ -512,7 +521,7 @@ st.markdown(
     "<div style='text-align:center; color:#7a937a; font-size:0.8rem; padding:0.5rem 0; line-height:1.8;'>"
     "Rice Leaf Disease Detector · EfficientNet-B0 · Trained on 4,804 images<br>"
     "Made with ❤️ by <strong style='color:#4a5e4a;'>Team Venus</strong> : "
-    "Vaibhav, Sri Ram, Naveen"
+    "Vaibhav, Naveen, Sri Ram"
     "</div>",
     unsafe_allow_html=True,
 )
