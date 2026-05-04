@@ -227,14 +227,14 @@ st.markdown(f"""
 [data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] div,
 [data-testid="stFileUploaderFile"] span,
 [data-testid="stFileUploaderFile"] small,
-[data-testid="stFileUploaderFile"] div {
+[data-testid="stFileUploaderFile"] div {{
     display: flex !important;
-}
+}}
 
 [data-testid="stFileUploaderFile"] .stProgress > div,
-[data-testid="stFileUploaderFile"] .stProgress > div > div {
+[data-testid="stFileUploaderFile"] .stProgress > div > div {{
     display: block !important;
-}
+}}
 [data-testid="stFileUploadDropzone"] span, 
 [data-testid="stFileUploadDropzone"] small,
 [data-testid="stFileUploadDropzone"] div,
