@@ -4,6 +4,7 @@ Upload a rice leaf photo → disease prediction → confidence bar → farmer-fr
 """
 
 import os, json, base64
+import streamlit.components.v1 as components
 import streamlit as st
 import torch
 import torch.nn.functional as F
@@ -199,21 +200,20 @@ st.markdown(f"""
 [data-testid="stFileUploader"] {{
     margin-top: 0px;
 }}
-
-/* Dropzone wrapper — position relative so we can overlay the file input */
 [data-testid="stFileUploader"] section,
 [data-testid="stFileUploadDropzone"] {{
     border: 2px dashed #b5ccae !important;
     border-radius: 14px !important;
-    padding: 2.5rem 1rem 2rem !important;
+    padding: 3rem 1rem !important;
     background-color: #f7faf4 !important;
-    transition: all 0.25s ease !important;
+    transition: border-color 0.25s ease, background-color 0.25s ease !important;
+    position: relative !important;
+    min-height: 180px !important;
+    overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    position: relative !important;
-    min-height: 160px !important;
 }}
 [data-testid="stFileUploader"] section:hover,
 [data-testid="stFileUploadDropzone"]:hover {{
@@ -221,14 +221,15 @@ st.markdown(f"""
     background-color: #e3f0de !important;
 }}
 
-/* ── Hide every native child of the inner dropzone div EXCEPT the file pill ── */
-[data-testid="stFileUploadDropzone"] > div > *:not([data-testid="stFileUploaderFile"]) {{
+/* Nuke ALL native dropzone children — JS overlay handles UX instead */
+[data-testid="stFileUploadDropzone"] > div,
+[data-testid="stFileUploadDropzone"] > div > * {{
     display: none !important;
 }}
 
-/* Stretch the hidden <input type="file"> over the whole dropzone so any click opens the picker */
-[data-testid="stFileUploadDropzone"] input[type="file"],
-[data-testid="stFileUploader"] section input[type="file"] {{
+/* Keep the invisible file input so clicking the zone opens the picker */
+[data-testid="stFileUploadDropzone"] input[type="file"] {{
+    display: block !important;
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
@@ -238,39 +239,7 @@ st.markdown(f"""
     z-index: 10 !important;
 }}
 
-/* ── Uploaded file pill ── */
-[data-testid="stFileUploaderFile"] {{
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.6rem !important;
-    background: #e3f0de !important;
-    border: 1px solid #b5ccae !important;
-    border-radius: 10px !important;
-    padding: 0.55rem 1rem !important;
-    width: 85% !important;
-    margin-top: 0.5rem !important;
-    position: relative !important;
-    z-index: 20 !important;
-    pointer-events: auto !important;
-}}
-[data-testid="stFileUploaderFile"] * {{
-    display: revert !important;
-    color: #2d3b2d !important;
-}}
-
-/* Progress bar inside the pill */
-[data-testid="stFileUploaderFile"] [data-testid="stProgressBar"],
-[data-testid="stFileUploaderFile"] .stProgress,
-[data-testid="stFileUploaderFile"] .stProgress > div,
-[data-testid="stFileUploaderFile"] .stProgress > div > div {{
-    display: block !important;
-    width: 100% !important;
-}}
-[data-testid="stFileUploaderFile"] .stProgress > div > div > div {{
-    background: linear-gradient(90deg, #2e7d32, #43a047) !important;
-}}
-
-/* ── Custom instruction text via pseudo-elements ── */
+/* Custom instruction text */
 [data-testid="stFileUploader"] section::before,
 [data-testid="stFileUploadDropzone"]::before {{
     content: "📸\\A Drag & drop or click here to browse files";
@@ -281,11 +250,11 @@ st.markdown(f"""
     display: block;
     text-align: center;
     width: 100%;
-    line-height: 1.7;
-    margin-bottom: 0.4rem;
+    line-height: 1.8;
+    margin-bottom: 0.45rem;
     pointer-events: none;
-    z-index: 1;
     position: relative;
+    z-index: 1;
 }}
 [data-testid="stFileUploader"] section::after,
 [data-testid="stFileUploadDropzone"]::after {{
@@ -297,8 +266,8 @@ st.markdown(f"""
     text-align: center;
     width: 100%;
     pointer-events: none;
-    z-index: 1;
     position: relative;
+    z-index: 1;
 }}
 
 /* ── Result badge ── */
@@ -476,6 +445,88 @@ uploaded = st.file_uploader(
     type=["jpg", "jpeg", "png", "bmp"],
     label_visibility="collapsed",
 )
+
+# JS: show upload % in centre of dropzone, disappear when done
+components.html("""
+<script>
+(function () {
+  var pdoc;
+  try { pdoc = window.parent.document; } catch (e) { return; }
+
+  var overlayEl = null;
+  var pctEl     = null;
+
+  function getOrCreate(dropzone) {
+    if (overlayEl && dropzone.contains(overlayEl)) return;
+    var old = pdoc.getElementById('_up_ov');
+    if (old) old.remove();
+
+    overlayEl = pdoc.createElement('div');
+    overlayEl.id = '_up_ov';
+    overlayEl.style.cssText = [
+      'position:absolute','inset:0','display:none',
+      'flex-direction:column','align-items:center','justify-content:center',
+      'z-index:50','border-radius:12px','gap:10px','pointer-events:none',
+      'background:rgba(247,250,244,0.96)'
+    ].join(';');
+
+    pctEl = pdoc.createElement('div');
+    pctEl.style.cssText = 'font-size:3rem;font-weight:800;color:#1b5e20;'
+                        + 'line-height:1;font-family:Inter,sans-serif;';
+    pctEl.textContent = '0%';
+
+    var lbl = pdoc.createElement('div');
+    lbl.style.cssText = 'font-size:0.88rem;color:#7a937a;font-weight:500;'
+                      + 'letter-spacing:0.5px;font-family:Inter,sans-serif;';
+    lbl.textContent = 'Uploading\u2026';
+
+    overlayEl.appendChild(pctEl);
+    overlayEl.appendChild(lbl);
+    dropzone.appendChild(overlayEl);
+  }
+
+  function readPct(pill) {
+    var bar = pill.querySelector('[role="progressbar"]');
+    if (bar) {
+      var v = bar.getAttribute('aria-valuenow');
+      if (v !== null) return parseFloat(v);
+    }
+    var fill = pill.querySelector('[data-testid="stProgressBar"] > div > div') ||
+               pill.querySelector('.stProgress > div > div > div');
+    if (fill && fill.style.width) return parseFloat(fill.style.width);
+    return 100;
+  }
+
+  function tick() {
+    var dropzone = pdoc.querySelector('[data-testid="stFileUploadDropzone"]');
+    if (!dropzone) return;
+    getOrCreate(dropzone);
+    var pill = dropzone.querySelector('[data-testid="stFileUploaderFile"]');
+    if (!pill) { overlayEl.style.display = 'none'; return; }
+    pill.style.cssText = 'display:none!important;visibility:hidden!important;position:absolute!important;';
+    var progress = readPct(pill);
+    if (progress < 100) {
+      overlayEl.style.display = 'flex';
+      pctEl.textContent = Math.round(progress) + '%';
+    } else {
+      overlayEl.style.display = 'none';
+    }
+  }
+
+  function setup() {
+    var body = pdoc.body;
+    if (!body) { setTimeout(setup, 300); return; }
+    setInterval(tick, 80);
+    new MutationObserver(tick).observe(body, {
+      childList: true, subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'aria-valuenow', 'aria-valuemax']
+    });
+  }
+  setTimeout(setup, 300);
+})();
+</script>
+""", height=0)
 
 # ══════════════════════════════════════════════
 #  RESULTS  (if uploaded)
